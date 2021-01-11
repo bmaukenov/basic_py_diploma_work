@@ -1,9 +1,10 @@
 import requests
 import time
 from pprint import pprint
+import os
 
 app_id = "7722809"
-access_token = "05bb82c1b3593ad3d330e75622f0e2e7136231e76761f867fa6989d3dd82466f562bd848bcafb63335fad"
+access_token = os.getenv("access_token")
 v = "5.126"
 URL = "https://api.vk.com/method/"
 input_info = input("Who is asking info? Enter either user login or user id, please")
