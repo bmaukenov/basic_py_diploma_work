@@ -1,58 +1,58 @@
+import os
+import json
 import requests
 import time
 from pprint import pprint
-import os
 
-app_id = "7722809"
-access_token = os.getenv("access_token")
-v = "5.126"
+APP_ID = "7722809"
+ACCEESS_TOKEN = os.getenv("ACCESS_TOKEN")
+V = "5.126"
 URL = "https://api.vk.com/method/"
-input_info = input("Who is asking info? Enter either user login or user id, please")
-type_of_input = input("What type of information about the user have you just entered? Print 1 for user login and 2 for user id")
+INPUT_INFO = input("Who is asking info? Enter either user login or user id, please")
+INPUT_TYPE = input("What type of information about the user have you just entered? Print 1 for user login and 2 for user id")
 
-
-class vk_user():
+class VkontakteUser():
     def __init__(self, input_info, type_of_input):
-        self.params = {"access_token": access_token, "v": v}
+        self.params = {"access_token": ACCEESS_TOKEN, "v": V}
         self.params['q'] = input_info
-        URL_search = URL + "users.search"
+        URL_SEARCH = URL + "users.search"
         if type_of_input == "1":
-            result = requests.get(URL_search, params=self.params)
+            result = requests.get(URL_SEARCH, params=self.params)
             self.user_id = result.json()["response"]["items"][0]["id"]
         elif type_of_input == "2":
-            self.user_id = input_info
+            self.user_id = type_of_input
         else:
             print("You have made a mistake in entering data")
 
     def get_user_group_ids(self):
         params = self.params
         params["user_id"] = self.user_id
-        URL_get_groups = URL + "groups.get"
-        groups = requests.get(URL_get_groups, params=params)
+        URL_GET_GROUPS = URL + "groups.get"
+        groups = requests.get(URL_GET_GROUPS, params=params)
         return groups.json()["response"]["items"], groups.json()["response"]["count"]
 
     def get_user_friend_ids(self):
         params = self.params
         params["user_id"] = self.user_id
-        URL_get_friends = URL + "friends.get"
-        friends = requests.get(URL_get_friends, params=params)
+        URL_GET_FRIENDS = URL + "friends.get"
+        friends = requests.get(URL_GET_FRIENDS, params=params)
         return friends.json()["response"]["items"]
 
     def user_groups_members(self, group_id):
         params = self.params
-        URL_get_group_members = URL + "groups.getMembers"
+        URL_GROUP_MEMBERS = URL + "groups.getMembers"
         params["group_id"] = group_id
         params["filter"] = "friends"
-        group_members = requests.get(URL_get_group_members, params=params)
+        group_members = requests.get(URL_GROUP_MEMBERS, params=params)
         group_members_json = group_members.json()["response"]["items"]
         return group_members_json
 
     def get_group_info(self, group_id):
         params = self.params
-        URL_get_group_info = URL + "groups.getById"
+        URL_GROUP_INFO = URL + "groups.getById"
         params["group_id"] = group_id
         params["fields"] = "members_count"
-        group_info = requests.get(URL_get_group_info, params=params)
+        group_info = requests.get(URL_GROUP_INFO, params=params)
         requested_group_info = {}
         requested_group_info["gid"] = group_info.json()["response"][0]["id"]
         requested_group_info["name"] = group_info.json()["response"][0]["name"]
@@ -61,7 +61,7 @@ class vk_user():
 
 
 if __name__ == "__main__":
-    source_user = vk_user(input_info, type_of_input)
+    source_user = VkontakteUser(INPUT_INFO, INPUT_TYPE)
     unique_groups = []
     groups, total_number_of_groups = source_user.get_user_group_ids()
     print(f"Your groups currently are being checked on having your friends in subscribers. You will get notifiations on every checked group. In total you have {total_number_of_groups} groups to be checked.")
@@ -75,3 +75,8 @@ if __name__ == "__main__":
 
     print("The analysis is done, thank you for waiting. Unique for you groups are:")
     pprint(unique_groups)
+
+    with open("JSON_test", "w", encoding="utf-8") as f:
+    	json.dump(unique_groups, f, ensure_ascii=False, indent=2)
+
+    print("Done")
